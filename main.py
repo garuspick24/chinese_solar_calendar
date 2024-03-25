@@ -128,32 +128,19 @@ def get_first_month_stem(year_stem):
 
 
 def get_current_month_stem(year_stem, month_branch):
-    if year_stem in ["Jia", "Ji"]:
-        index = 1
-    elif year_stem in ["Yi", "Geng"]:
-        index = 2
-    elif year_stem in ["Bing", "Xin"]:
-        index = 3
-    elif year_stem in ["Ding", "Ren"]:
-        index = 4
-    elif year_stem in ["Wu", "Gui"]:
-        index = 0
+    haven_stem = [
+        "Jia", "Yi", "Bing", "Ding", "Wu",
+        "Ji", "Geng", "Xin", "Ren", "Gui"
+    ]
 
-    data = {
-        "Yin": ("Jia", "Bing", "Wu", "Geng", "Ren"),
-        "Mao": ("Yi", "Ding", "Ji", "Xin", "Gui"),
-        "Chen": ("Bing", "Wu", "Geng", "Ren", "Jia"),
-        "Si": ("Ding", "Ji", "Xin", "Gui", "Yi"),
-        "Wu": ("Wu", "Geng", "Ren", "Jia", "Bing"),
-        "Wei": ("Ji", "Xin", "Gui", "Yi", "Ding"),
-        "Shen": ("Geng", "Ren", "Jia", "Bing", "Wu"),
-        "You": ("Xin", "Gui", "Yi", "Ding", "Ji"),
-        "Xiu": ("Ren", "Jia", "Bing", "Wu", "Geng"),
-        "Hai": ("Gui", "Yi", "Ding", "Ji", "Xin"),
-        "Zi": ("Jia", "Bing", "Wu", "Geng", "Ren"),
-        "Chou": ("Yi", "Ding", "Ji", "Xin", "Gui")
-    }
-    return data[month_branch][index]
+    earth_branch = [
+        "Yin", "Mao", "Chen", "Si", "Wu", "Wei",
+        "Shen", "You", "Xiu", "Hai", "Zi", "Chou"
+    ]
+    haven_index = haven_stem.index(year_stem)
+    earth_index = earth_branch.index(month_branch)
+    return haven_stem[
+        (haven_index + (earth_index + haven_index + 2)) % 10]
 
 
 date_now = Datetime('2024/04/28', '17:00', '+02:00')
