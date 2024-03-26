@@ -4,26 +4,28 @@ from flatlib.datetime import Datetime, dateJDN, jdnDate
 from flatlib.ephem.ephem import nextSolarReturn
 from flatlib.geopos import GeoPos
 
-date = Datetime('2024/05/07', '23:20', '+02:00')
+date = Datetime('2024/05/05', '00:00', '+02:00')
+
 pos = GeoPos('50n26', '30e31')
+
 
 
 class BaZi:
     def __init__(self, date, pos):
-        self.date = date
+        self.date = date.date
+        self.time = date.time
         self.pos = pos
         self.chart = Chart(date, pos)
         self.sun = self.chart.get(const.SUN)
+        self.j_date = date.jd + 0.5
         if date.time.toList()[1] >= 23:
             self.j_date = date.jd + 1
-        else:
-            self.j_date = date.jd
 
     def year_stem(self):
         if self.month_branch() in ["Zi", "Chou"]:
-            year = self.date.date.toList()[1] - 1
+            year = self.date.toList()[1] - 1
         else:
-            year = self.date.date.toList()[1]
+            year = self.date.toList()[1]
         stems = {
             4: "Jia",
             5: "Yi",
@@ -40,9 +42,9 @@ class BaZi:
 
     def year_branch(self):
         if self.month_branch() in ["Zi", "Chou"]:
-            year = self.date.date.toList()[1] - 1
+            year = self.date.toList()[1] - 1
         else:
-            year = self.date.date.toList()[1]
+            year = self.date.toList()[1]
         branches = {
             4: "Zi",
             5: "Chou",
@@ -160,13 +162,42 @@ class BaZi:
             (23, 24): "Zi"
         }
         for key, value in branches.items():
-            if key[0] <= self.date.time.toList()[1] < key[1]:
+            if key[0] <= self.time.toList()[1] < key[1]:
                 return value
+
+    def __str__(self):
+        return (f"Year: {a.year_stem()} {a.year_branch()}\n"
+                f"Month: {a.month_stem()} {a.month_branch()}\n"
+                f"Day: {a.day_stem()} {a.day_branch()}\n"
+                f"Hour: {a.hour_stem()} {a.hour_branch()}\n")
 
 
 a = BaZi(date, pos)
 
-print(f"Year: {a.year_stem()} {a.year_branch()}")
-print(f"Month: {a.month_stem()} {a.month_branch()}")
-print(f"Day: {a.day_stem()} {a.day_branch()}")
-print(f"Hour: {a.hour_stem()} {a.hour_branch()}")
+
+class DateSelection:
+    def __init__(self, bazi: BaZi):
+        self.year_stem = bazi.year_stem()
+        self.year_branch = bazi.year_branch()
+        self.month_stem = bazi.month_stem()
+        self.month_branch = bazi.month_branch()
+        self.day_stem = bazi.day_stem()
+        self.day_branch = bazi.day_branch()
+        self.hour_stem = bazi.hour_stem()
+
+    def day_star(self):
+        stars = ["jian", "chu", "man", "ping", "ding", "zhi", "po", "wei", "cheng", "shou", "kai", "bi"]
+        branch = ["Zi", "Chou", "Yin", "Mao", "Chen", "Si", "Wu", "Wei", "Shen", "You", "Xiu", "Hai"]
+        index_month = branch.index(self.month_branch)
+        index_day = branch.index(self.day_branch)
+
+        return stars[((index_day - index_month) + 12) % 12]
+
+
+print(a)
+print(a.j_date)
+
+a = DateSelection(BaZi(date, pos))
+print(a.month_branch)
+print(a.day_branch)
+print(a.day_star())
