@@ -1,25 +1,24 @@
 from flatlib import const
 from flatlib.chart import Chart
-from flatlib.datetime import Datetime, dateJDN, jdnDate
-from flatlib.ephem.ephem import nextSolarReturn
+from flatlib.datetime import Datetime
 from flatlib.geopos import GeoPos
 
-date = Datetime('2024/05/05', '00:00', '+02:00')
+date_for_sun = Datetime('2024/05/05', '03:10', '+02:00')
 
+date_for_bazi = Datetime(date_for_sun.date.toString(), date_for_sun.time.toString())
 pos = GeoPos('50n26', '30e31')
 
 
-
 class BaZi:
-    def __init__(self, date, pos):
-        self.date = date.date
-        self.time = date.time
+    def __init__(self, date_for_bazi, date_for_sun, pos):
+        self.date = date_for_bazi.date
+        self.time = date_for_bazi.time
         self.pos = pos
-        self.chart = Chart(date, pos)
+        self.chart = Chart(date_for_sun, pos)
         self.sun = self.chart.get(const.SUN)
-        self.j_date = date.jd + 0.5
-        if date.time.toList()[1] >= 23:
-            self.j_date = date.jd + 1
+        self.j_date = date_for_bazi.jd + 0.5
+        if date_for_bazi.time.toList()[1] >= 23:
+            self.j_date = date_for_bazi.jd + 1
 
     def year_stem(self):
         if self.month_branch() in ["Zi", "Chou"]:
@@ -172,9 +171,6 @@ class BaZi:
                 f"Hour: {a.hour_stem()} {a.hour_branch()}\n")
 
 
-a = BaZi(date, pos)
-
-
 class DateSelection:
     def __init__(self, bazi: BaZi):
         self.year_stem = bazi.year_stem()
@@ -194,10 +190,11 @@ class DateSelection:
         return stars[((index_day - index_month) + 12) % 12]
 
 
+a = BaZi(date_for_bazi, date_for_sun, pos)
 print(a)
 print(a.j_date)
 
-a = DateSelection(BaZi(date, pos))
+a = DateSelection(BaZi(date_for_bazi, date_for_sun, pos))
 print(a.month_branch)
 print(a.day_branch)
 print(a.day_star())
