@@ -3,7 +3,7 @@ from flatlib.chart import Chart
 from flatlib.datetime import Datetime
 from flatlib.geopos import GeoPos
 
-date_for_sun = Datetime('2024/05/05', '03:10', '+02:00')
+date_for_sun = Datetime('2024/05/05', '00:10', '+02:00')
 
 date_for_bazi = Datetime(date_for_sun.date.toString(), date_for_sun.time.toString())
 pos = GeoPos('50n26', '30e31')
@@ -13,7 +13,6 @@ class BaZi:
     def __init__(self, date_for_bazi, date_for_sun, pos):
         self.date = date_for_bazi.date
         self.time = date_for_bazi.time
-        self.pos = pos
         self.chart = Chart(date_for_sun, pos)
         self.sun = self.chart.get(const.SUN)
         self.j_date = date_for_bazi.jd + 0.5
@@ -165,10 +164,10 @@ class BaZi:
                 return value
 
     def __str__(self):
-        return (f"Year: {a.year_stem()} {a.year_branch()}\n"
-                f"Month: {a.month_stem()} {a.month_branch()}\n"
-                f"Day: {a.day_stem()} {a.day_branch()}\n"
-                f"Hour: {a.hour_stem()} {a.hour_branch()}\n")
+        return (f"Year: {self.year_stem()} {self.year_branch()}\n"
+                f"Month: {self.month_stem()} {self.month_branch()}\n"
+                f"Day: {self.day_stem()} {self.day_branch()}\n"
+                f"Hour: {self.hour_stem()} {self.hour_branch()}\n")
 
 
 class DateSelection:
@@ -180,6 +179,7 @@ class DateSelection:
         self.day_stem = bazi.day_stem()
         self.day_branch = bazi.day_branch()
         self.hour_stem = bazi.hour_stem()
+        self.hour_branch = bazi.hour_branch()
 
     def day_star(self):
         stars = ["jian", "chu", "man", "ping", "ding", "zhi", "po", "wei", "cheng", "shou", "kai", "bi"]
@@ -189,12 +189,39 @@ class DateSelection:
 
         return stars[((index_day - index_month) + 12) % 12]
 
+    def hour_spirit(self):
+        spirits = ["青龙", "明堂", "天刑", "朱雀", "金匮", "天德", "白虎", "玉堂", "天牢", "玄武", "司命", "勾陈"]
+        branch = ["Zi", "Chou", "Yin", "Mao", "Chen", "Si", "Wu", "Wei", "Shen", "You", "Xiu", "Hai"]
+
+        if self.day_branch in ["Zi", "Wu"]:
+            index_spirit = 8       #"Shen"
+        elif self.day_branch in ["Chou", "Wei"]:
+            index_spirit = 10      #"Xiu"
+        elif self.day_branch in ["Yin", "Shen"]:
+            index_spirit = 0       #"Zi"
+        elif self.day_branch in ["Mao", "You"]:
+            index_spirit = 2       #"Yin"
+        elif self.day_branch in ["Chen", "Xiu"]:
+            index_spirit = 4       #"Chen"
+        elif self.day_branch in ["Si", "Hai"]:
+            index_spirit = 6       #"Wu"
+
+        index_hour = branch.index(self.hour_branch)
+
+
+        return spirits[((index_hour - index_spirit) + 12) % 12]
+
+    def __str__(self):
+        return (f"Day star: {self.day_star()}\n"
+                f"Hour spirit: {self.hour_spirit()}")
+
+
+
 
 a = BaZi(date_for_bazi, date_for_sun, pos)
-print(a)
-print(a.j_date)
+b = DateSelection(BaZi(date_for_bazi, date_for_sun, pos))
 
-a = DateSelection(BaZi(date_for_bazi, date_for_sun, pos))
-print(a.month_branch)
-print(a.day_branch)
-print(a.day_star())
+
+
+print(a)
+print(b)
